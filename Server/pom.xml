@@ -2,8 +2,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.server2</groupId>
-  <artifactId>server2</artifactId>
+  <groupId>com.team4</groupId>
+  <artifactId>server</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <name>server2</name>
@@ -32,13 +32,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-    <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <configuration>
-            <mainClass>com.server2.server2.App</mainClass>
-        </configuration>
-    </plugin>
-                </plugins>
+    	    <plugin>
+        	<groupId>org.codehaus.mojo</groupId>
+        	<artifactId>exec-maven-plugin</artifactId>
+        	<configuration>
+            		<mainClass>com.team4.server.App</mainClass>
+        	</configuration>
+    	     </plugin>
+        </plugins>
     </build>
 </project>
