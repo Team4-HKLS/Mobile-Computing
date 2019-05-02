@@ -14,11 +14,11 @@ public class Advertiser {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeAdvertiser bluetoothLeAdvertiser;
     private Context mContext;
-    private String uuid;
+    private String deviceMac;
 
-    public Advertiser(Context mContext, String uuid) {
+    public Advertiser(Context mContext, String deviceMac) {
         this.mContext = mContext;
-        this.uuid = uuid;
+        this.deviceMac = deviceMac;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
     }
@@ -35,7 +35,7 @@ public class Advertiser {
                     .build();
 
             AdvertiseData advertiseData = new AdvertiseData.Builder()
-                    .addServiceUuid(ParcelUuid.fromString(uuid))
+                    .addServiceUuid(ParcelUuid.fromString(deviceMac))
                     .build();
 
             bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, advertiseCallback);
