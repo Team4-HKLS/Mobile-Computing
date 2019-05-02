@@ -1,9 +1,7 @@
-<<<<<<< HEAD
-c:\Users\kwang\Mobile-Computing\Server\src\main\java\com\team4\server\StatusController.java
-c:\Users\kwang\Mobile-Computing\Server\src\main\java\com\team4\server\App.java
-=======
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/ClusteringModule.java
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/NotExistingException.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/NotExistingClassException.java
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/GetPlanController.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/RegistController.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/StatusController.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/App.java
->>>>>>> 680f030d5f60eb1d48d25abfd15642ab9c8a64e0
