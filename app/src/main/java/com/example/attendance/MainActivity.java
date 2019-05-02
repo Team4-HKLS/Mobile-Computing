@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity {
     private Scanner scanner;
     private Advertiser advertiser;
 
+    private Button registerButton;
+    private Button startButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +44,25 @@ public class MainActivity extends AppCompatActivity {
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
 
+        registerButton = findViewById(R.id.bt_register);
+        startButton = findViewById(R.id.bt_start);
+
         scanner = new Scanner(context);
         advertiser = new Advertiser(context, deviceMac);
 
-        register(deviceMac, classId);
-        getPlan(deviceMac);
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                register(deviceMac, classId);
+            }
+        });
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getPlan(deviceMac);
+            }
+        });
     }
     public void register(String deviceMac, String classId){
         Call<ResponseBody> responseBodyCall = Client.getClient().register(deviceMac, classId);
