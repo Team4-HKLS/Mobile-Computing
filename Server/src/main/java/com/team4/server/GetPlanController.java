@@ -32,7 +32,7 @@ public class GetPlanController {
 	        jsonSubObject = new LinkedHashMap<String, Object>();
 	        jsonSubObject.put("round", i);
 	        jsonSubObject.put("role", getRole(deviceID,i));
-	        panList.add(jsonSubObject);
+	        planList.add(jsonSubObject);
         }
         jsonObject.put("plan", planList);
 	System.out.println("Plan:: "+jsonObject);
