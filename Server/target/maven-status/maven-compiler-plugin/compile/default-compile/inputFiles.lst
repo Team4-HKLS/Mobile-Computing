@@ -1,4 +1,8 @@
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/ClusteringModule.java
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/NotExistingException.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/NotExistingClassException.java
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/SendDataController.java
+/home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/GetPlanController.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/RegistController.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/StatusController.java
 /home/kwkwon/Mobile-Computing/Server/src/main/java/com/team4/server/App.java

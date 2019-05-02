@@ -1,0 +1,2 @@
+spring.http.multipart.maxFileSize
+spring.http.multipart.maxRequestSize
