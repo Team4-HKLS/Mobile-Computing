@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,6 +19,8 @@ import java.util.Set;
  */
 
 public class ClusteringModule {
+	static final int referenceRSSI = -60;
+	static final int threshold = 4;	
 	static final int k = 3;
 	ArrayList<String> studentList;
 	Map<String, Set<String>> allNeighbors;
@@ -34,18 +37,25 @@ public class ClusteringModule {
 		while (it.hasNext()) {
 			String id = it.next();
 			File folder = new File(path + "\\" + id);
-			allNeighbors.put(id, findNeighbors(folder));
+			allNeighbors.put(id, findNeighborsNear(folder));
 		}
 		
 		return clustering();
 	}
 	
 	// calculate neighbors of each device.
-	private Set<String> findNeighbors(File folder) {
+	private Set<String> findNeighborsNaive(File folder) {
 		Set<String> neighbors = new HashSet<String>();
+		
 		String[] txts = folder.list();
+		Arrays.sort(txts);
+		int studentIndex = studentList.indexOf(folder.getName());
+		int neighborIndex = 0;
+		
 		try {
 			for (int i = 0; i < txts.length; i++) {
+				if(studentIndex == neighborIndex)
+					neighborIndex += 1;
 				File file = new File(folder.getPath() + "\\" + txts[i]); // text file
 				
 				FileReader fr = new FileReader(file);
@@ -55,10 +65,53 @@ public class ClusteringModule {
 					String[] tokens = line.split("\\s+");
 					
 					// format: date + time + MACaddress(=ID) + SS + txPower
-					if (tokens.length > 4 && studentList.contains(tokens[2])) {
+					if (tokens.length > 4 && neighborIndex == studentList.indexOf(tokens[2])) {
 						neighbors.add(tokens[2]);
 					}
 				}
+				neighborIndex += 1;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return neighbors;
+	}
+	
+	private Set<String> findNeighborsNear(File folder) {
+		Set<String> neighbors = new HashSet<String>();
+		
+		String[] txts = folder.list();
+		Arrays.sort(txts);
+		int studentIndex = studentList.indexOf(folder.getName());
+		int neighborIndex = 0;
+		double distance = 0;
+		int cnt = 0;
+		
+		try {
+			for (int i = 0; i < txts.length; i++) {
+				if(studentIndex == neighborIndex)
+					neighborIndex += 1;
+				File file = new File(folder.getPath() + "\\" + txts[i]); // text file
+				
+				FileReader fr = new FileReader(file);
+				BufferedReader br = new BufferedReader(fr);
+				String line = "";
+				while ((line = br.readLine()) != null) {
+					String[] tokens = line.split("\\s+");
+					
+					// format: date + time + MACaddress(=ID) + SS + txPower
+					if (tokens.length > 4 && neighborIndex == studentList.indexOf(tokens[2])) {
+						distance += Math.pow(10,  (float) (referenceRSSI - Integer.parseInt(tokens[3]))/20);
+						cnt += 1;
+					}
+				}
+				System.out.println("distance: " + ((float) distance / cnt));
+				if (((float) distance / cnt) < threshold) {
+					neighbors.add(studentList.get(neighborIndex));
+				}
+				
+				neighborIndex += 1;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
