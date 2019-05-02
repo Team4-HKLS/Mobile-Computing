@@ -9,11 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/register_device")
 public class RegistController {
     @PostMapping
-    public String registerDevice(@RequestHeader(value="deviceUUID") String deviceID,@RequestHeader(value="major") String major/*@RequestParam("deviceUUID") String deviceID, @RequestParam("major") String major*/) {
-    	
-
+    public String registerDevice(@RequestHeader(value="deviceMAC") String deviceID,@RequestHeader(value="classID") String major/*@RequestParam("deviceUUID") String deviceID, @RequestParam("major") String major*/) {
 	    	if(App.classID.contentEquals(major)) {
-	    	App.deviceList.add(deviceID);
+	    	App.deviceList.add(major);
 	    	System.out.println("Devicelist :: "+App.deviceList);
 	        return "200 OK";
     	}else {
