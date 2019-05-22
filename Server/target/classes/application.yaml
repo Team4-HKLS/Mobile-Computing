@@ -1,2 +1,4 @@
-spring.http.multipart.maxFileSize
-spring.http.multipart.maxRequestSize
+spring:
+    view:
+        prefix: /WEB-INF/view/
+        suffix: .jsp
