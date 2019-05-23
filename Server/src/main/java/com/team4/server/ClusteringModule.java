@@ -39,7 +39,8 @@ public class ClusteringModule {
 		Iterator<String> it = folders.iterator();
 		while (it.hasNext()) {
 			String id = it.next();
-			File folder = new File(path + "\\" + id);
+			//File folder = new File(path + "\\" + id);
+			File folder = new File(path + "/" + id);
 			allNeighbors.put(id, findNeighborsNear(folder));
 		}
 		
@@ -59,8 +60,8 @@ public class ClusteringModule {
 			for (int i = 0; i < txts.length; i++) {
 				if(studentIndex == neighborIndex)
 					neighborIndex += 1;
-				File file = new File(folder.getPath() + "\\" + txts[i]); // text file
-				//File file = new File(folder.getPath() + "/" + txts[i]);
+				//File file = new File(folder.getPath() + "\\" + txts[i]); // text file
+				File file = new File(folder.getPath() + "/" + txts[i]);
 				
 				FileReader fr = new FileReader(file);
 				BufferedReader br = new BufferedReader(fr);
