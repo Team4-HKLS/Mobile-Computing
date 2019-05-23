@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/register_device")
 public class RegistController {
     @PostMapping
-    public String registerDevice(@RequestHeader(value="deviceMAC") String deviceID,@RequestHeader(value="classID") String major) {
+	public String registerDevice(@RequestHeader(value="deviceMAC") String deviceID,
+							     	@RequestHeader(value="classID") String major,
+									@RequestHeader(value="name", defaultValue = "anonymous") String name) {
 	    	if(App.classID.contentEquals(major)) {
-	    	App.deviceList.add(deviceID);
-	    	System.out.println("Register Device Called Devicelist :: "+App.deviceList);
+			Student newStudent = new Student(name, deviceID);
+			App.List.add(newStudent);
 	        return "200 OK";
     	}else {
             throw new NotExistingException("Not existing classid");

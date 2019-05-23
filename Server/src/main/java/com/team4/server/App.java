@@ -11,11 +11,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 public class App {
 	static String path = "/home/kwkwon/DeviceFolder";
-	static ArrayList<String> deviceList = new ArrayList<String>();
+    static public ArrayList<Student> List = new ArrayList<Student>();
 	static String classID = "Mobile Computing"; 
 	
 	public static void main(String[] args) {
     	System.out.println("System Started!!");
+    	resetAll();
+    	SpringApplication.run(App.class, args);
+	}
+	
+	public static void resetAll() {
+    	System.out.println("\nSystem Reset!!\n");
+    	List.clear();
     	File deleteFolder = new File(path);
     	File[] deleteFolderList = deleteFolder.listFiles();
     	for (int i = 0; i < deleteFolderList.length; i++  ) {
@@ -25,9 +32,18 @@ public class App {
     		}
     		deleteFolderList[i].delete();
     	}
-    	
-    	SpringApplication.run(App.class, args);
 	}
+	
+	public static int searchDevice(String DEVICEID){
+
+		for (int i = 0; i < List.size(); i++) { 
+			if (List.get(i).getDeviceID().equals(DEVICEID)) {
+				return i;
+			}
+	  }
+	return -1;
+	}
+	
 
 	
 }

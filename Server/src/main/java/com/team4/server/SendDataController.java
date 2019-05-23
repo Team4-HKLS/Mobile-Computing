@@ -16,27 +16,22 @@ import org.springframework.web.multipart.MultipartFile;
 public class SendDataController {
     @PostMapping
     public String handleFileUpload(@RequestParam("file") MultipartFile sourceFile,@RequestHeader(value="deviceMAC") String deviceID) throws IOException {
-    	
-    	String path = "/home/kwkwon/DeviceFolder/"+deviceID;
+		int deviceNum = App.searchDevice(deviceID);
+		if(deviceNum == -1){
+            throw new NotExistingException("Not existing deviceID");
+    	}
+    	String path = App.path+deviceID;
     	System.out.println("path: "+path);
     	File Folder = new File(path);
 
     	if (!Folder.exists()) {
-    		try{
     		    Folder.mkdir(); //폴더 생성합니다.
-    	        } 
-    	        catch(Exception e){
-    		    e.getStackTrace();
-    		}        
-             }else {
-    		System.out.println("Folder exist!");
-            throw new NotExistingException("Already existing BLE result");
     	}
     	
     	File target = new File(path,sourceFile.getOriginalFilename());
     	FileCopyUtils.copy(sourceFile.getBytes(), target);
-    	
+		
+		App.List.get(deviceNum).setUploadFile();
     	return "Success!!";
-
     }
 }
