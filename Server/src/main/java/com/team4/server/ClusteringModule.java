@@ -33,7 +33,7 @@ public class ClusteringModule {
 		allNeighbors = new HashMap<String, Set<String>>();
 
 		//String path = ClusteringModule.class.getResource("").getPath();
-		String path = "/home/kwkwon/DeviceFolder"
+		String path = "/home/kwkwon/DeviceFolder";
 		ArrayList<String> folders = getFolderList(path);
 
 		// For each device, find neighbors and store to allNeighbors.
@@ -41,7 +41,7 @@ public class ClusteringModule {
 		while (it.hasNext()) {
 			String id = it.next();
 			//File folder = new File(path + "\\" + id);
-			File folder = new File(path + "/" + id);OC
+			File folder = new File(path + "/" + id);
 			allNeighbors.put(id, findNeighborsNear(folder));
 		}
 		dbscan(minPts-1);
