@@ -1,4 +1,6 @@
-package clustering;
+//package clustering;
+package com.team4.server;
+
 
 import java.io.BufferedReader;
 import java.io.File;
