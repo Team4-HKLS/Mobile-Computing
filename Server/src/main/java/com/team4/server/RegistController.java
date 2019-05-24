@@ -14,12 +14,9 @@ public class RegistController {
 	public String registerDevice(@RequestHeader(value = "deviceMAC") String deviceID,
 			@RequestHeader(value = "classID") String major,
 			@RequestHeader(value = "name", defaultValue = "anonymous") String name) {
-<<<<<<< HEAD
 		if (App.state != State.Register)
 			throw new NotAllowedException("Register device is not allowed in this time");
 
-=======
->>>>>>> 8b035a0514dc41a721f7e548fbed8df8c1b001c0
 		if (App.classID.contentEquals(major)) {
 			if (App.searchDevice(deviceID) == -1) {
 				Student newStudent = new Student(name, deviceID);

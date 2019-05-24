@@ -14,11 +14,7 @@ public class App {
 	static String classID = "Mobile Computing";
 
 	public enum State {
-<<<<<<< HEAD
 		Register, GetPlan, UploadFiles, Clustring, ClusteringComplete, Final
-=======
-		Register, GetPlan, UploadFiles, Clustring, Final
->>>>>>> 8b035a0514dc41a721f7e548fbed8df8c1b001c0
 	}
 
 	public static State state;
@@ -58,11 +54,6 @@ public class App {
 		if (state == State.Register)
 			state = State.GetPlan;
 		else if (state == State.GetPlan)
-<<<<<<< HEAD
-=======
-			state = State.UploadFiles;
-		else if (state == State.UploadFiles)
->>>>>>> 8b035a0514dc41a721f7e548fbed8df8c1b001c0
 			state = State.Clustring;
 		else if (state == State.Clustring)
 			state = State.Final;
