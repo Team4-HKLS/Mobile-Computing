@@ -1,6 +1,12 @@
 package com.example.attendance;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,11 +18,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,6 +35,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private String deviceMac;
+    private String name;
     private String classId;
     private Context context;
 
@@ -43,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         deviceMac = getMacAddress("wlan0");
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
+        name = "yjshin";
 
         registerButton = findViewById(R.id.bt_register);
         startButton = findViewById(R.id.bt_start);
@@ -53,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                register(deviceMac, classId);
+                register(deviceMac, name, classId);
             }
         });
 
@@ -63,17 +75,22 @@ public class MainActivity extends AppCompatActivity {
                 getPlan(deviceMac);
             }
         });
+
+        permissionCheck();
     }
-    public void register(String deviceMac, String classId){
-        Call<ResponseBody> responseBodyCall = Client.getClient().register(deviceMac, classId);
+
+    public void register(String deviceMac, String name, String classId){
+        Call<ResponseBody> responseBodyCall = Client.getClient().register(deviceMac, name, classId);
 
         responseBodyCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if(response.code() == 200) {
                     Log.d("test", "registered");
+                    Toast.makeText(context, "Registration succeed", Toast.LENGTH_SHORT).show();
                 } else{
                     Log.d("test", "registration failed");
+                    Toast.makeText(context, "Registered failed", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -125,35 +142,6 @@ public class MainActivity extends AppCompatActivity {
         planTask.start();
     }
 
-    public static String getMacAddress(String interfaceName){
-        try{
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-
-            for (NetworkInterface intf : interfaces) {
-                if (interfaceName != null) {
-                    if (!intf.getName().equalsIgnoreCase(interfaceName))
-                        continue;
-                }
-
-                byte[] mac = intf.getHardwareAddress();
-                if (mac == null)
-                    return "";
-
-                StringBuilder buf = new StringBuilder();
-
-                for (int idx = 0; idx < mac.length; idx++)
-                    buf.append(String.format("%02X:", mac[idx]));
-
-                if (buf.length()>0) buf.deleteCharAt(buf.length()-1);
-                    return buf.toString();
-            }
-        } catch (Exception ex) {
-
-        }
-
-        return "";
-    }
-
     class PlanTask extends Thread{
         JSONArray plan;
         int duration;
@@ -188,6 +176,8 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+
+            uploadFiles();
         }
     }
 
@@ -214,6 +204,100 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void uploadFiles(){
+        String[] list = getFileList("attendance");
+        List<MultipartBody.Part> parts = new ArrayList<>();
+        for(int i = 0; i < list.length; i++){
+            String filename = Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance/" + list[i];
+            File file = new File(filename);
+
+            RequestBody requestBody = RequestBody.create(null, file);
+            parts.add(MultipartBody.Part.createFormData(list[i], list[i], requestBody));
+        }
+
+        Call<ResponseBody> responseBodyCall = Client.getClient().sendData(RequestBody.create(MultipartBody.FORM, deviceMac), deviceMac, parts);
+        responseBodyCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Log.d("test", "file upload success");
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d("test", "file upload failed");
+            }
+        });
+    }
+
+    public void permissionCheck(){
+        int permissionResult = context.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if(permissionResult == PackageManager.PERMISSION_DENIED){
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        } else{
+            File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
+            if(!dir.exists()){
+                dir.mkdirs();
+                Log.d("test", "mkdir succeed");
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == 0){
+            if(grantResults[0] == 0){
+                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
+                if(!dir.exists()){
+                    dir.mkdirs();
+                    Log.d("test", "mkdir succeed");
+                }
+            }else{
+                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public static String getMacAddress(String interfaceName){
+        try{
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+
+            for (NetworkInterface intf : interfaces) {
+                if (interfaceName != null) {
+                    if (!intf.getName().equalsIgnoreCase(interfaceName))
+                        continue;
+                }
+
+                byte[] mac = intf.getHardwareAddress();
+                if (mac == null)
+                    return "";
+
+                StringBuilder buf = new StringBuilder();
+
+                for (int idx = 0; idx < mac.length; idx++)
+                    buf.append(String.format("%02X:", mac[idx]));
+
+                if (buf.length()>0) buf.deleteCharAt(buf.length()-1);
+                return buf.toString();
+            }
+        } catch (Exception ex) {
+
+        }
+
+        return "";
+    }
+
+    public String[] getFileList(String path){
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + path);
+        File[] files = file.listFiles();
+        String[] list = new String[files.length];
+        for(int i = 0; i < files.length; i++){
+            list[i] = files[i].getName();
+        }
+
+        return list;
     }
 }
 
