@@ -23,7 +23,9 @@ import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private String deviceMac;
     private String name;
     private String classId;
-    private Context context;
+    private Context mContext;
 
     private Scanner scanner;
     private Advertiser advertiser;
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        context = this;
+        mContext = this;
         deviceMac = getMacAddress("wlan0");
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
@@ -59,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.bt_register);
         startButton = findViewById(R.id.bt_start);
 
-        scanner = new Scanner(context);
-        advertiser = new Advertiser(context, deviceMac);
+        scanner = new Scanner(mContext);
+        advertiser = new Advertiser(mContext, deviceMac);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,10 +89,10 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if(response.code() == 200) {
                     Log.d("test", "registered");
-                    Toast.makeText(context, "Registration succeed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Registration succeed", Toast.LENGTH_SHORT).show();
                 } else{
                     Log.d("test", "registration failed");
-                    Toast.makeText(context, "Registered failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "Registered failed", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -232,31 +234,53 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void permissionCheck(){
-        int permissionResult = context.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionResult = mContext.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int permissionResult2 = mContext.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
 
-        if(permissionResult == PackageManager.PERMISSION_DENIED){
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
-        } else{
+        List<String> permissionList = new ArrayList<>();
+
+        if(permissionResult == PackageManager.PERMISSION_DENIED) {
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if(permissionResult2 == PackageManager.PERMISSION_DENIED){
+            permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        }
+
+        if (permissionList.isEmpty()){
             File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
             if(!dir.exists()){
                 dir.mkdirs();
                 Log.d("test", "mkdir succeed");
             }
+        } else{
+            ActivityCompat.requestPermissions(this, permissionList.toArray(new String[permissionList.size()]), 1);
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == 0){
-            if(grantResults[0] == 0){
-                File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
-                if(!dir.exists()){
-                    dir.mkdirs();
-                    Log.d("test", "mkdir succeed");
+
+        switch(requestCode){
+            case 1:
+                Map<String, Integer> perms = new HashMap<>();
+                perms.put(Manifest.permission.WRITE_EXTERNAL_STORAGE, PackageManager.PERMISSION_GRANTED);
+                perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
+
+                if (grantResults.length > 0){
+                    for (int i = 0; i < permissions.length; i++)
+                        perms.put(permissions[i], grantResults[i]);
+
+                    if (perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        File dir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
+                        if (!dir.exists()) {
+                            dir.mkdirs();
+                            Log.d("test", "mkdir succeed");
+                        }
+                    } else{
+                        Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
+                    }
                 }
-            }else{
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
