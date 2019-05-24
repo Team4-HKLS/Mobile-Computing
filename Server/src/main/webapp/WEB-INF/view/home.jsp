@@ -45,26 +45,35 @@
 
 <body>
     <input type="button" value="Reset System" onClick="location.href='http://52.79.226.66:8080/reset'">
-    <h2>${title}</h2>
-    <h2>Today : ${time}</h2>
+    <input type="button" value="Next Stage" onClick="location.href='http://52.79.226.66:8080/next-stage'">
+    <h2>${title} ${time}</h2>
+    <h2>Current: ${state}</h2>
     <c:choose>
         <c:when test="${fn:length(list) == 0 }">
-                <h2>No device is registered.</h2>
-            </c:when>
+            <h2>No device is registered.</h2>
+        </c:when>
         <c:otherwise>
+            <h2>Total:
+                <c:out value="${fn:length(list)}" />
+            </h2>
             <table border="1">
                 <thead>
                     <tr>
+                        <td>No</td>
                         <td>Name</td>
                         <td>Device MAC</td>
                         <td>Get BLE Plan</td>
-                        <td>Upload BLE Result</td>
+                        <td>Upload File</td>
+                        <td>Clustring Result</td>
                         <td>Final Attendance</td>
                     </tr>
                 </thead>
                 <tbody>
                     <c:forEach items="${list}" var="item" varStatus="i">
                         <tr>
+                            <td>
+                                <c:out value="${i.count}" />
+                            </td>
                             <td>
                                 <c:out value="${item.name}" />
                             </td>
@@ -90,6 +99,9 @@
                                         <div class="circle_red"></div>
                                     </c:otherwise>
                                 </c:choose>
+                            </td>
+                            <td>
+                                    <div class="circle_red"></div>
                             </td>
                             <td>
                                 <div class="circle_red"></div>

@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping(value = "/reset")
-public class ResetAllController {
+@RequestMapping(value = "/next-stage")
+public class NextStageController {
     @GetMapping
     public String reset() {
-    	App.resetAll();
+        App.moveNextStage();
         return "redirect:/";
     }
 }
