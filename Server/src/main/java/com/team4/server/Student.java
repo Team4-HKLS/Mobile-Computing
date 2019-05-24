@@ -5,6 +5,8 @@ public class Student {
 	private String name;
 	private Boolean getPlan;
 	private Boolean uploadResult;
+	private Boolean clustringResult;
+	private Boolean finalResult;
 	
 	Student(String NAME, String ID) {
 		this.deviceID = ID;
@@ -24,6 +26,12 @@ public class Student {
 	public Boolean getUploadResult(){
 		return this.uploadResult;
 	}
+	public Boolean getClustringResult(){
+		return this.clustringResult;
+	}
+	public Boolean getFinalResult(){
+		return this.finalResult;
+	}
 	
 	public void setGetPlan(){
 		this.getPlan = true;
@@ -31,5 +39,7 @@ public class Student {
 	public void setUploadFile() {
 		this.uploadResult = true;
 	}
+
+	
 
 }

@@ -22,6 +22,7 @@ public class DemoViewController {
         model.addAttribute("title", "Team4 Demo");
         model.addAttribute("time", df.format(date));
         model.addAttribute("list",App.List);
+        model.addAttribute("state",App.state);
         return "home";
     }
 }
