@@ -39,7 +39,7 @@ public class Student {
 	public void setUploadFile() {
 		this.uploadResult = true;
 	}
-
-	
-
+	public void setClustringResult(boolean b) {
+		this.clustringResult = b;
+	}
 }

@@ -53,9 +53,21 @@ public class App {
 	public static void moveNextStage() {
 		if (state == State.Register)
 			state = State.GetPlan;
-		else if (state == State.GetPlan)
+		else if (state == State.GetPlan) {
 			state = State.Clustring;
-		else if (state == State.Clustring)
+			System.out.println("List elements:");
+			System.out.println(List.get(0).getDeviceID());
+
+			ClusteringModule cls = new ClusteringModule();
+			cls.start(List);
+			state = State.ClusteringComplete;
+		}
+		else if (state == State.Clustring) {
+		}
+		else if (state == State.ClusteringComplete)
 			state = State.Final;
+		else {
+			System.out.println("NOT DEFINED STATE");
+		}
 	}
 }

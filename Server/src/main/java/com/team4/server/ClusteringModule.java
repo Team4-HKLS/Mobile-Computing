@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /* input: student list of collected data files
@@ -23,12 +24,20 @@ public class ClusteringModule {
 	static final int threshold = 4;	
 	static final int k = 3;
 	static final int minPts = 3; // DBSCAN min points
-	ArrayList<String> studentList;
-	Map<String, Set<String>> allNeighbors;
-	Map<String, Integer> label = new HashMap<String, Integer>();
+	private ArrayList<String> studentList;
+	private Map<String, Set<String>> allNeighbors;
+	private Map<String, Integer> label = new HashMap<String, Integer>(); // (deviceID, clusterID)
 
-	public ArrayList<Set<String>> start(ArrayList<String> studentList) {
-		this.studentList = studentList;
+	public void start(ArrayList<Student> List) {
+		if(List.isEmpty()) {
+			System.out.println("#################### No elements to cluster ####################");
+			return;
+		}
+		this.studentList = new ArrayList<String>();
+		for(Student s : List) {
+			this.studentList.add(s.getDeviceID());
+			System.out.println("Add student " + s.getDeviceID());
+		}
 		allNeighbors = new HashMap<String, Set<String>>();
 
 		//String path = ClusteringModule.class.getResource("").getPath();
@@ -41,50 +50,40 @@ public class ClusteringModule {
 			String id = it.next();
 			//File folder = new File(path + "\\" + id);
 			File folder = new File(path + "/" + id);
-			allNeighbors.put(id, findNeighborsNear(folder));
-		}
-		dbscan(minPts-1);
-		
-		return clustering();
-	}
-	
-	// calculate neighbors of each device.
-	private Set<String> findNeighborsNaive(File folder) {
-		Set<String> neighbors = new HashSet<String>();
-		
-		String[] txts = folder.list();
-		Arrays.sort(txts);
-		int studentIndex = studentList.indexOf(folder.getName());
-		int neighborIndex = 0;
-		
-		try {
-			for (int i = 0; i < txts.length; i++) {
-				if(studentIndex == neighborIndex)
-					neighborIndex += 1;
-				//File file = new File(folder.getPath() + "\\" + txts[i]); // text file
-				File file = new File(folder.getPath() + "/" + txts[i]);
-				
-				FileReader fr = new FileReader(file);
-				BufferedReader br = new BufferedReader(fr);
-				String line = "";
-				while ((line = br.readLine()) != null) {
-					String[] tokens = line.split("\\s+");
-					
-					// format: date + time + MACaddress(=ID) + SS + txPower
-					if (tokens.length > 4 && neighborIndex == studentList.indexOf(tokens[2])) {
-						neighbors.add(tokens[2]);
-					}
-				}
-				neighborIndex += 1;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			allNeighbors.put(id, findNeighbors(folder));
 		}
 
-		return neighbors;
+		System.out.println("################### Call dbscan ####################");
+		dbscan(minPts-1);
+
+		// Find the largest cluster.
+		Map<Integer, Integer> temp = new HashMap<Integer, Integer>();
+		for (Integer t : label.values()) {
+			Integer c = temp.get(t);
+			temp.put(t, (c == null) ? 1 : c + 1);
+		}
+		int largest_cls = 0;
+		for (Map.Entry<Integer, Integer> m : temp.entrySet()) {
+			if (m.getKey() == -2) continue;
+			System.out.println("The number of elements in cluster #" + m.getKey() + " is " + m.getValue());
+			if (largest_cls < m.getValue()) {
+				largest_cls = m.getKey();
+			}
+		}
+		System.out.println("########## The largest cluster is #" + largest_cls + "###########");
+		
+		// Write the attendance result to each student object.
+		Iterator<Student> it2 = List.iterator();
+		while (it2.hasNext()) {
+			Student s = it2.next();
+			if (label.get(s.getDeviceID()) == largest_cls)
+				s.setClustringResult(true);
+			else
+				s.setClustringResult(false);
+		}	
 	}
 	
-	private Set<String> findNeighborsNear(File folder) {
+	private Set<String> findNeighbors(File folder) {
 		Set<String> neighbors = new HashSet<String>();
 		
 		String[] txts = folder.list();
@@ -129,7 +128,7 @@ public class ClusteringModule {
 		return neighbors;
 	}
 	
-	
+	/*
 	private ArrayList<Set<String>> clustering() {
 		ArrayList<Set<String>> clusters = new ArrayList<Set<String>>();
 		for(String student : allNeighbors.keySet()) {
@@ -155,7 +154,7 @@ public class ClusteringModule {
 		
 		return false;
 	}
-	
+	*/
 	private void dbscan(int minPts) {
 		int C = 0;
 		Set<String> S;
