@@ -51,8 +51,7 @@ public class Client {
 
         @Multipart
         @POST("send_data")
-        Call<ResponseBody> sendData(@Part("description") RequestBody description,
-                                    @Header("deviceMac") String deviceMac,
+        Call<ResponseBody> sendData(@Header("deviceMac") String deviceMac,
                                     @Part List<MultipartBody.Part> file);
     }
 }

@@ -213,22 +213,28 @@ public class MainActivity extends AppCompatActivity {
         List<MultipartBody.Part> parts = new ArrayList<>();
         for(int i = 0; i < list.length; i++){
             String filename = Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance/" + list[i];
+            Log.d("test", filename);
             File file = new File(filename);
 
             RequestBody requestBody = RequestBody.create(null, file);
-            parts.add(MultipartBody.Part.createFormData(list[i], list[i], requestBody));
+            parts.add(MultipartBody.Part.createFormData("file", list[i], requestBody));
         }
 
-        Call<ResponseBody> responseBodyCall = Client.getClient().sendData(RequestBody.create(MultipartBody.FORM, deviceMac), deviceMac, parts);
+        Call<ResponseBody> responseBodyCall = Client.getClient().sendData(deviceMac, parts);
         responseBodyCall.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Log.d("test", "file upload success");
+                if(response.code() == 200) {
+                    Log.d("test", "registered");
+                    Toast.makeText(mContext, "Upload succeed", Toast.LENGTH_SHORT).show();
+                } else{
+                    Log.d("test", "Upload failed");
+                }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.d("test", "file upload failed");
+                Log.d("test", "Upload failed");
             }
         });
     }
