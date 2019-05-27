@@ -56,6 +56,6 @@ public class App {
 		else if (state == State.GetPlan)
 			state = State.Clustering;
 		else if (state == State.Clustering)
-			state = State.Final;
+			state = State.ClusteringComplete;
 	}
 }
