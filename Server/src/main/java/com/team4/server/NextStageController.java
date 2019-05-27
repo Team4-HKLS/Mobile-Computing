@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping(value = "/next-stage")
 public class NextStageController {
     @GetMapping
-    public String reset() {
+    public String NextStage() {
         App.moveNextStage();
         return "redirect:/";
     }

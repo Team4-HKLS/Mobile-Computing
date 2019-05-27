@@ -5,7 +5,7 @@ public class Student {
 	private String name;
 	private Boolean getPlan;
 	private Boolean uploadResult;
-	private Boolean clustringResult;
+	private Boolean clusteringResult;
 	private Boolean finalResult;
 	
 	Student(String NAME, String ID) {
@@ -26,8 +26,8 @@ public class Student {
 	public Boolean getUploadResult(){
 		return this.uploadResult;
 	}
-	public Boolean getClustringResult(){
-		return this.clustringResult;
+	public Boolean getClusteringResult(){
+		return this.clusteringResult;
 	}
 	public Boolean getFinalResult(){
 		return this.finalResult;
