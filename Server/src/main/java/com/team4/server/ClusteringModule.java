@@ -77,9 +77,9 @@ public class ClusteringModule {
 		while (it2.hasNext()) {
 			Student s = it2.next();
 			if (label.get(s.getDeviceID()) == largest_cls)
-				s.setClustringResult(true);
+				s.setClusteringResult(true);
 			else
-				s.setClustringResult(false);
+				s.setClusteringResult(false);
 		}	
 	}
 	
