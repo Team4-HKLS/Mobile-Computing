@@ -64,7 +64,7 @@
                         <td>Device MAC</td>
                         <td>Get BLE Plan</td>
                         <td>Upload File</td>
-                        <td>Clustring Result</td>
+                        <td>Clustering Result</td>
                         <td>Final Attendance</td>
                     </tr>
                 </thead>
