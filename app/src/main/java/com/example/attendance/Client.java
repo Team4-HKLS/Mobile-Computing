@@ -53,5 +53,9 @@ public class Client {
         @POST("send_data")
         Call<ResponseBody> sendData(@Header("deviceMac") String deviceMac,
                                     @Part List<MultipartBody.Part> file);
+
+        @GET("polling")
+        Call<ResponseBody> polling(@Header("deviceMac") String deviceMac,
+                                   @Header("name") String name);
     }
 }

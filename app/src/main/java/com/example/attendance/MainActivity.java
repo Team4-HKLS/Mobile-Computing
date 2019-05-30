@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +27,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -47,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private Button registerButton;
     private Button startButton;
 
+    private Timer timer;
+    private TimerTask timerTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +67,14 @@ public class MainActivity extends AppCompatActivity {
         registerButton = findViewById(R.id.bt_register);
         startButton = findViewById(R.id.bt_start);
 
-        scanner = new Scanner(mContext);
+        scanner = new Scanner(mContext, classId);
         advertiser = new Advertiser(mContext, deviceMac);
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 register(deviceMac, name, classId);
+                polling(deviceMac, name);
             }
         });
 
@@ -75,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 getPlan(deviceMac);
+                stopPolling();
             }
         });
 
@@ -179,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            uploadFiles();
+            //uploadFiles();
         }
     }
 
@@ -195,10 +203,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run(){
             try {
-                if(role.equalsIgnoreCase("transmit")){
+                if(role.equalsIgnoreCase("scan")){
                     Log.d("test", role);
+                    scanner.startScan(duration);
+
                 } else{
                     Log.d("test", role);
+                    advertiser.startAdvertise(duration);
                 }
 
                 this.sleep(duration * 1000);
@@ -237,6 +248,64 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("test", "Upload failed");
             }
         });
+    }
+
+    public void polling(final String deviceMac, final String name){
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Call<ResponseBody> responseBodyCall = Client.getClient().polling(deviceMac, name);
+                responseBodyCall.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if(response.code() == 200){
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(response.body().string());
+                                if (jsonObject.length() != 0){
+                                    String type = jsonObject.getString("type");
+
+                                    if(type.equalsIgnoreCase("plan")){
+                                        stopPolling();
+                                        JSONObject planObject = jsonObject.getJSONObject("data");
+                                        if (planObject.length() != 0){
+                                            int duration = planObject.getInt("duration");
+                                            int order = planObject.getInt("deviceOrder");
+                                            JSONArray plan = planObject.getJSONArray("plan");
+                                            executePlan(plan, duration, order);
+                                        }
+                                    } else if(type.equalsIgnoreCase("authentication")){
+
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else if(response.code() == 202){
+                            Log.d("test", "nothing to notice");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
+            }
+        };
+
+        timer = new Timer();
+        timer.schedule(timerTask, 0, 1000);
+    }
+
+    public void stopPolling(){
+        if (timer != null){
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        }
     }
 
     public void permissionCheck(){
