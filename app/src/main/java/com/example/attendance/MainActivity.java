@@ -6,20 +6,17 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+
+
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -69,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
         deviceMac = getMacAddress("wlan0");
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
-        //name = "yjshin";
 
         registerButton = findViewById(R.id.bt_register);
         startButton = findViewById(R.id.bt_start);
@@ -188,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                     roundTask.start();
 
                     roundTask.join();
+
                     Log.d("test", "round finished");
 
                 } catch (InterruptedException e) {
@@ -197,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            //uploadFiles();
+            uploadFiles();
         }
     }
 
@@ -221,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("test", role);
                     advertiser.startAdvertise(duration);
                 }
-
                 this.sleep(duration * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -277,13 +273,10 @@ public class MainActivity extends AppCompatActivity {
 
                                     if(type.equalsIgnoreCase("plan")){
                                         stopPolling();
-                                        JSONObject planObject = jsonObject.getJSONObject("data");
-                                        if (planObject.length() != 0){
-                                            int duration = planObject.getInt("duration");
-                                            int order = planObject.getInt("deviceOrder");
-                                            JSONArray plan = planObject.getJSONArray("plan");
-                                            executePlan(plan, duration, order);
-                                        }
+                                        int duration = jsonObject.getInt("duration");
+                                        int order = jsonObject.getInt("deviceOrder");
+                                        JSONArray plan = jsonObject.getJSONArray("plan");
+                                        executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
 
                                     }
@@ -320,7 +313,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void permissionCheck(){
         int permissionResult = mContext.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int permissionResult2 = mContext.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+        int permissionResult2 = mContext.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION);
 
         List<String> permissionList = new ArrayList<>();
 
