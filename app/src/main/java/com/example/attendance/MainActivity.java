@@ -23,10 +23,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.NetworkInterface;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -393,7 +397,19 @@ public class MainActivity extends AppCompatActivity {
 
     public String[] getFileList(String path){
         File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + path);
-        File[] files = file.listFiles();
+
+        FilenameFilter filenameFilter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                String date = dateFormat.format(new Date(System.currentTimeMillis()));
+                if (name.contains(classId + date))
+                    return true;
+                return false;
+            }
+        };
+
+        File[] files = file.listFiles(filenameFilter);
         String[] list = new String[files.length];
         for(int i = 0; i < files.length; i++){
             list[i] = files[i].getName();

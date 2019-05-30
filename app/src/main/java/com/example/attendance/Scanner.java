@@ -86,13 +86,15 @@ public class Scanner {
             String mac = new String(result.getScanRecord().getServiceData(result.getScanRecord().getServiceUuids().get(0)), Charset.forName("UTF-8"));
             int tx = result.getScanRecord().getTxPowerLevel();
             int rssi = result.getRssi();
-            Long now = System.currentTimeMillis();
-            Date date = new Date(now);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String time = simpleDateFormat.format(date);
 
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String time = simpleDateFormat.format(new Date(System.currentTimeMillis()));
             String text = time + "\t" + mac + "\t" + rssi  + "\t" + tx + "\n";
-            write(text, classId + count + ".txt", Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            String date = dateFormat.format(new Date(System.currentTimeMillis()));
+            String fileName = classId + date + "_" + count + ".txt";
+            write(text, fileName, Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
             Log.d("test", text);
         }
 
