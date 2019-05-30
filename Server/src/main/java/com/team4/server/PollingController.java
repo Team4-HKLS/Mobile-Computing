@@ -48,10 +48,14 @@ public class PollingController {
             App.List.get(deviceNum).setGetPlan();
 
             return jsonObject;
-        }else{
-            Map<String, Object> jsonObject = new LinkedHashMap<String, Object>();
-            jsonObject.put("type", "authentication");
-            return jsonObject;
+        } else {
+            if (App.List.get(deviceNum).getClusteringResult()) {
+                Map<String, Object> jsonObject = new LinkedHashMap<String, Object>();
+                jsonObject.put("type", "authentication");
+                return jsonObject;
+            }else{
+                throw new NotAllowedException("Clustering Result Failed. Your Attendance is not valid!!");
+            }
         }
     }
 
