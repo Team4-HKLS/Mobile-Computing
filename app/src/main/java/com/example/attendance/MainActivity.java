@@ -5,14 +5,17 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button registerButton;
     private Button startButton;
+    private EditText nameEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +60,11 @@ public class MainActivity extends AppCompatActivity {
         deviceMac = getMacAddress("wlan0");
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
-        name = "yjshin";
+        //name = "yjshin";
 
         registerButton = findViewById(R.id.bt_register);
         startButton = findViewById(R.id.bt_start);
+        nameEditText = findViewById(R.id.et_name);
 
         scanner = new Scanner(mContext);
         advertiser = new Advertiser(mContext, deviceMac);
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                name = nameEditText.getText().toString();
                 register(deviceMac, name, classId);
             }
         });
@@ -74,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 getPlan(deviceMac);
             }
         });
