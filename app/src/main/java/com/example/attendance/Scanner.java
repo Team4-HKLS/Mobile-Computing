@@ -65,6 +65,7 @@ public class Scanner {
             bluetoothLeScanner.startScan(filters, scanSettings, scanCallback);
         }
 
+
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
@@ -75,7 +76,7 @@ public class Scanner {
     }
 
     public void stopScan(){
-        bluetoothLeScanner.stopScan(stopCallback);
+        bluetoothLeScanner.stopScan(scanCallback);
     }
 
     public ScanCallback scanCallback = new ScanCallback() {
@@ -103,23 +104,6 @@ public class Scanner {
         @Override
         public void onScanFailed(int errorCode) {
             Log.d("test", "failed");
-        }
-    };
-
-    public ScanCallback stopCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            super.onBatchScanResults(results);
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
         }
     };
 

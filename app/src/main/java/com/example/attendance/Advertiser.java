@@ -52,6 +52,7 @@ public class Advertiser {
             bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, advertiseCallback);
             Log.d("test", "advertising");
 
+
             Handler handler = new Handler(Looper.getMainLooper());
             handler.postDelayed(new Runnable() {
                 @Override
@@ -63,7 +64,7 @@ public class Advertiser {
     }
 
     public void stopAdvertise(){
-        bluetoothLeAdvertiser.stopAdvertising(stopCallback);
+        bluetoothLeAdvertiser.stopAdvertising(advertiseCallback);
     }
 
     public AdvertiseCallback advertiseCallback = new AdvertiseCallback() {
@@ -76,18 +77,6 @@ public class Advertiser {
         public void onStartFailure(int errorCode) {
             Log.d("test", "fail advertising");
             Log.d("test", Integer.toString(errorCode));
-        }
-    };
-
-    public AdvertiseCallback stopCallback = new AdvertiseCallback() {
-        @Override
-        public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-            super.onStartSuccess(settingsInEffect);
-        }
-
-        @Override
-        public void onStartFailure(int errorCode) {
-            super.onStartFailure(errorCode);
         }
     };
 }
