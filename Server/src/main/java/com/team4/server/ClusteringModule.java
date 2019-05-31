@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.List;
 
 /* input: student list of collected data files
  * output: clusters by all neighbors (regardless of signal strength)
@@ -20,9 +21,8 @@ import java.util.Set;
 
 public class ClusteringModule {
 	static final int Noise = -2, undefined = -1;
-	static final int referenceRSSI = -60;
-	static final int threshold = 4;	
-	static final int k = 3;
+	static final int referenceRSSI = -60; // 1m rssi
+	static final int threshold = 3;	// distance threshold
 	static final int minPts = 3; // DBSCAN min points
 	private ArrayList<String> studentList;
 	private Map<String, Set<String>> allNeighbors;
@@ -157,7 +157,7 @@ public class ClusteringModule {
 	*/
 	private void dbscan(int minPts) {
 		int C = 0;
-		Set<String> S;
+		Set<String> s;
 		for(String P : studentList) {
 			if(label.containsKey(P)) continue;
 			Set<String> neighbors = allNeighbors.get(P);
@@ -166,11 +166,36 @@ public class ClusteringModule {
 				label.put(P, Noise);
 				continue;
 			}
+			// The case that new seed node is found
 			C = C + 1;
 			label.put(P, C);
-			S = neighbors;
-			S.add(P);
-			Iterator<String> iter = S.iterator();
+			s = neighbors;
+			s.add(P);
+			//Iterator<String> iter = s.iterator();
+			String S[] = new String[s.size()];
+			S = s.toArray(S);
+			for(int i=0; i<S.length; i++) {
+				String Q = S[i];
+				if(label.containsKey(Q) && label.get(Q) == Noise) {
+					label.put(Q, C);
+				}
+				if(label.containsKey(Q)) {
+					continue;
+				}
+				label.put(Q, C);
+				Set<String> N = allNeighbors.get(Q);
+				if(N.size() >= minPts) {
+					List list = new ArrayList(Arrays.asList(S));
+					list.addAll(Arrays.asList(N.toArray()));
+					S = (String[]) list.toArray(new String[0]);
+					//S = list.stream().toArray(String[]::new);
+					//Object[] c = list.toArray();
+					//S = Arrays.toString(c);
+					
+					//S = (String[])ArrayUtils.addAll(S, N.toArray());
+				}
+			}
+			/*
 			Set<String> T = new HashSet<String>();
 			while(iter.hasNext()) {
 				String Q = iter.next();
@@ -190,10 +215,11 @@ public class ClusteringModule {
 					T.clear();
 				}
 			}
+			*/
 		}
 		
-		for(String s : studentList) {
-			System.out.println("student " + s + ": " + label.get(s));
+		for(String student : studentList) {
+			System.out.println("student " + student + " => " + label.get(student));
 		}
 	}
 	
