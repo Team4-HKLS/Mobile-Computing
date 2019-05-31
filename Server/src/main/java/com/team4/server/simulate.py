@@ -7,7 +7,7 @@ import math
 row = 14 # 4, 6, 4
 col = 13
 student_num = 100
-eps = 3
+eps = 2
 minPts = 3
 
 # dist between students in a desk : 0.7m
@@ -92,7 +92,6 @@ def main(argv):
         S = neighbors
         S.append(P)
 
-        print 'hi'
         i = -1
 
 #        for i in range(len(S)):
@@ -119,12 +118,13 @@ def main(argv):
         print '--Cluster %d (#: %d):'%(i, len(idx_list))
         print map(lambda x:place_list[x], idx_list)
 
-    for i in range(student_num):
-        
+    if -2 in label.values():
+        lst = filter(lambda x:label[x]==-2, label.keys())
+        lst = map(lambda x:place_list[x], lst)
+        print '--Noise nodes (#: %d):'%(len(lst))
+        print lst
 
 #    print 'dist 8 to 9:', dist_map[place_list.index(8)][place_list.index(9)]
-
-
 
 if __name__ == '__main__':
     main(sys.argv)
