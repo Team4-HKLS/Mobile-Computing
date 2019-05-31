@@ -70,7 +70,7 @@ public class ClusteringModule {
 				largest_cls = m.getKey();
 			}
 		}
-		System.out.println("########## The largest cluster is #" + largest_cls + "###########");
+		System.out.println("########## The largest cluster is #" + largest_cls + " ###########");
 		
 		// Write the attendance result to each student object.
 		Iterator<Student> it2 = List.iterator();
@@ -174,8 +174,12 @@ public class ClusteringModule {
 			//Iterator<String> iter = s.iterator();
 			String S[] = new String[s.size()];
 			S = s.toArray(S);
-			for(int i=0; i<S.length; i++) {
-				String Q = S[i];
+
+			int k = -1;
+			//for(int i=0; i<S.length; i++) {
+			while((k+1) < S.length) {
+				k += 1;
+				String Q = S[k];
 				if(label.containsKey(Q) && label.get(Q) == Noise) {
 					label.put(Q, C);
 				}
@@ -217,10 +221,22 @@ public class ClusteringModule {
 			}
 			*/
 		}
-		
+
+		for(int i=1; i<C+1; i++) {
+			List lst = new ArrayList<String>();
+			Iterator<String> iter = label.keySet().iterator();
+			while(iter.hasNext()) {
+				String str = iter.next();
+				if(label.get(str) == i)
+					lst.add(str);
+			}
+			System.out.println("--Cluster " + i + " (#:" + lst.size() + ")\n" + lst);
+		}
+		/*
 		for(String student : studentList) {
 			System.out.println("student " + student + " => " + label.get(student));
 		}
+		*/
 	}
 	
 	private ArrayList<String> getFolderList(String path) {
