@@ -2,22 +2,20 @@ package com.example.attendance;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Environment;
-import android.os.Handler;
-
-
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -282,7 +280,11 @@ public class MainActivity extends AppCompatActivity {
                                         JSONArray plan = jsonObject.getJSONArray("plan");
                                         executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
-
+                                        stopPolling();
+                                        Intent intent = new Intent(mContext, FingerprintActivity.class);
+                                        intent.putExtra("deviceMac", deviceMac);
+                                        intent.putExtra("name", name);
+                                        startActivity(intent);
                                     }
                                 }
                             } catch (JSONException e) {
