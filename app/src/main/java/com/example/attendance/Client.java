@@ -60,7 +60,7 @@ public class Client {
 
         @GET("confirm_attendance")
         Call<ResponseBody> confirmAttendance(@Header("deviceMac") String deviceMac,
-                                   @Header("name") String name,
+                                             @Header("name") String name,
                                              @Header("isAttended") boolean isAttended);
 
     }
