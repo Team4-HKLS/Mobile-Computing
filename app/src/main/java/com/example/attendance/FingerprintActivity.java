@@ -1,8 +1,10 @@
+
 package com.example.attendance;
 
 import android.Manifest;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
@@ -28,8 +30,14 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class FingerprintActivity extends AppCompatActivity {
@@ -42,16 +50,22 @@ public class FingerprintActivity extends AppCompatActivity {
     private Cipher cipher;
     private FingerprintManager.CryptoObject cryptoObject;
 
+    private String deviceMac;
+    private String name;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fingerprint);
         keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
 
-//        if (!keyguardManager.isKeyguardSecure()) {
-//            Toast.makeText(this,"Lock screen security not enabled in Settings", Toast.LENGTH_LONG).show();
-//            return;
-//        }
+        deviceMac = getIntent().getStringExtra("deviceMac");
+        name = getIntent().getStringExtra("name");
+
+        if (!keyguardManager.isKeyguardSecure()) {
+            Toast.makeText(this,"Lock screen security not enabled in Settings", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -61,20 +75,20 @@ public class FingerprintActivity extends AppCompatActivity {
 
         if (!fingerprintManager.hasEnrolledFingerprints()) {
 
-                // This happens when no fingerprints are registered.
-                Toast.makeText(this,
-                        "Register at least one fingerprint in Settings",
-                        Toast.LENGTH_LONG).show();
-                return;
-            }
+            // This happens when no fingerprints are registered.
+            Toast.makeText(this,
+                    "Register at least one fingerprint in Settings",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
 
-            generateKey();
+        generateKey();
 
-            if(cipherInit()) {
-                cryptoObject = new FingerprintManager.CryptoObject(cipher);
-                FingerprintHandler helper = new FingerprintHandler(this);
-                helper.startAuth(fingerprintManager, cryptoObject);
-            }
+        if(cipherInit()) {
+            cryptoObject = new FingerprintManager.CryptoObject(cipher);
+            FingerprintHandler helper = new FingerprintHandler(this);
+            helper.startAuth(fingerprintManager, cryptoObject);
+        }
     }
 
     protected void generateKey() {
@@ -180,7 +194,9 @@ public class FingerprintActivity extends AppCompatActivity {
         public void onAuthenticationFailed() {
             Toast.makeText(appContext,
                     "Authentication failed.",
-                    Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_SHORT).show();
+
+            confirmAttendance(deviceMac, name, false);
         }
 
         @Override
@@ -189,8 +205,57 @@ public class FingerprintActivity extends AppCompatActivity {
 
             Toast.makeText(appContext,
                     "Authentication succeeded.",
-                    Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_SHORT).show();
+
+            confirmAttendance(deviceMac, name, true);
+
         }
+    }
+
+    public void confirmAttendance(String deviceMac, String name, boolean isAttended){
+        Call<ResponseBody> responseBodyCall = Client.getClient().confirmAttendance(deviceMac, name, isAttended);
+
+        responseBodyCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code() == 200) {
+                    Toast.makeText(getApplicationContext(), "Confirmation succeeded", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Confirmation failed", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+    }
+
+    public void showAlert(String title, String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getApplicationContext());
+
+        alertDialogBuilder.setTitle(title);
+
+        alertDialogBuilder
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //TODO ::
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.show();
     }
 }
 
