@@ -57,5 +57,11 @@ public class Client {
         @GET("polling")
         Call<ResponseBody> polling(@Header("deviceMac") String deviceMac,
                                    @Header("name") String name);
+
+        @GET("confirm_attendance")
+        Call<ResponseBody> confirmAttendance(@Header("deviceMac") String deviceMac,
+                                   @Header("name") String name,
+                                             @Header("isAttended") boolean isAttended);
+
     }
 }
