@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private Button startButton;
     private EditText nameEditText;
     private Spinner classSpinner;
+    private InputMethodManager inputMethodManager;
 
     private Timer timer;
     private TimerTask timerTask;
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         startButton = findViewById(R.id.bt_start);
         nameEditText = findViewById(R.id.et_name);
         classSpinner = findViewById(R.id.sp_class);
+        inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
         scanner = new Scanner(mContext, classId);
         advertiser = new Advertiser(mContext, deviceMac);
@@ -91,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 getPlan(deviceMac);
                 stopPolling();
             }
@@ -200,6 +202,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             uploadFiles();
+
+            polling(deviceMac, name);
         }
     }
 
@@ -421,6 +425,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return list;
+    }
+
+    public void linearOnClick(View v){
+        inputMethodManager.hideSoftInputFromWindow(nameEditText.getWindowToken(), 0);
     }
 }
 
