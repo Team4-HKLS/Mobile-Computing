@@ -202,7 +202,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             uploadFiles();
-
             polling(deviceMac, name);
         }
     }
