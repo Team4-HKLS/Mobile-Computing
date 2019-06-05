@@ -13,6 +13,14 @@ public class Student {
 		this.name = NAME;
 		this.getPlan = false;
 		this.uploadResult = false;
+		this.clusteringResult = false;
+		this.finalResult = false;
+		if(NAME.contentEquals("GOD")){
+			this.getPlan = true;
+			this.uploadResult = true;
+			this.clusteringResult = true;
+			this.finalResult = true;
+		}
 	}
 	public String getName(){
 		return this.name;
@@ -41,5 +49,9 @@ public class Student {
 	}
 	public void setClusteringResult(boolean b) {
 		this.clusteringResult = b;
+	}
+
+	public void setFinalResult(){
+		this.finalResult = true;
 	}
 }

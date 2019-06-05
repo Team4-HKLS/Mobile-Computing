@@ -40,6 +40,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Team4 Demo</title>
+    <link rel="icon" href="icon.png">
     <meta http-equiv="refresh" content="2">
 </head>
 
@@ -101,10 +102,24 @@
                                 </c:choose>
                             </td>
                             <td>
-                                    <div class="circle_red"></div>
+                                <c:choose>
+                                    <c:when test="${item.clusteringResult==true}">
+                                        <div class="circle_blue"></div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="circle_red"></div>
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                             <td>
-                                <div class="circle_red"></div>
+                                <c:choose>
+                                    <c:when test="${item.finalResult==true}">
+                                        <div class="circle_blue"></div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="circle_red"></div>
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                         </tr>
                     </c:forEach>
