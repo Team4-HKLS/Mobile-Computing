@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private Advertiser advertiser;
 
     private Button registerButton;
-    private Button startButton;
     private EditText nameEditText;
     private Spinner classSpinner;
     private InputMethodManager inputMethodManager;
@@ -74,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         classId = "Mobile Computing";
 
         registerButton = findViewById(R.id.bt_register);
-        startButton = findViewById(R.id.bt_start);
         nameEditText = findViewById(R.id.et_name);
         classSpinner = findViewById(R.id.sp_class);
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -91,13 +89,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getPlan(deviceMac);
-                stopPolling();
-            }
-        });
+//        startButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                getPlan(deviceMac);
+//                stopPolling();
+//            }
+//        });
 
         permissionCheck();
     }
@@ -310,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
-
+        stopPolling();
         timer = new Timer();
         timer.schedule(timerTask, 0, 1000);
     }

@@ -1,6 +1,7 @@
 package com.example.attendance;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,6 +12,7 @@ import android.os.CancellationSignal;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -28,7 +30,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-import androidx.appcompat.app.AlertDialog;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -190,16 +192,16 @@ public class FingerprintActivity extends AppCompatActivity {
 
         @Override
         public void onAuthenticationFailed() {
-            showFailureAlert();
+            showAuthFailureAlert();
         }
 
         @Override
         public void onAuthenticationSucceeded(
                 FingerprintManager.AuthenticationResult result) {
-
-            Toast.makeText(appContext,
-                    "Authentication succeeded.",
-                    Toast.LENGTH_SHORT).show();
+//
+//            Toast.makeText(appContext,
+//                    "Authentication succeeded.",
+//                    Toast.LENGTH_SHORT).show();
 
             confirmAttendance(deviceMac, name, true);
 
@@ -215,7 +217,10 @@ public class FingerprintActivity extends AppCompatActivity {
                 if(response.code() == 200) {
                     showSuccessAlert();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Confirmation failed", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), "Confirmation failed", Toast.LENGTH_LONG).show();
+                    Log.d("server failure", response.code()+"");
+                    showServerFailureAlert();
+
                 }
             }
 
@@ -227,7 +232,7 @@ public class FingerprintActivity extends AppCompatActivity {
     }
 
     public void showSuccessAlert() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FingerprintActivity.this);
 
         alertDialogBuilder.setTitle("Attendance Check");
 
@@ -246,13 +251,33 @@ public class FingerprintActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    public void showFailureAlert() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getApplicationContext());
+    public void showAuthFailureAlert() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FingerprintActivity.this);
 
         alertDialogBuilder.setTitle("Attendance Check");
 
         alertDialogBuilder
                 .setMessage("Fingerprint authentication is not succeeded. Do you want to try again?")
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                helper.startAuth(fingerprintManager, cryptoObject);
+                            }
+                        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.show();
+    }
+
+    public void showServerFailureAlert() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(FingerprintActivity.this);
+
+        alertDialogBuilder.setTitle("Attendance Check");
+
+        alertDialogBuilder
+                .setMessage("Server authentication is not succeeded. Do you want to try again?")
                 .setCancelable(false)
                 .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
