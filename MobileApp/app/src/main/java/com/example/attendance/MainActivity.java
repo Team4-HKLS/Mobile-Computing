@@ -24,6 +24,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.NetworkInterface;
@@ -87,6 +89,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 name = nameEditText.getText().toString();
                 register(deviceMac, name, classId);
+
+                String[] list = getFileList("attendance");
+                for(int i = 0 ; i < list.length; i++){
+                    File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance/" + list[i]);
+                    file.delete();
+                }
+
                 polling(deviceMac, name);
             }
         });
@@ -200,9 +209,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
             uploadFiles();
-            polling(deviceMac, name);
         }
     }
 
@@ -252,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 if(response.code() == 200) {
                     Log.d("test", "registered");
                     Toast.makeText(mContext, "Upload succeed", Toast.LENGTH_SHORT).show();
+                    polling(deviceMac, name);
                 } else{
                     Log.d("test", "Upload failed");
                 }
@@ -312,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         timer = new Timer();
-        timer.schedule(timerTask, 0, 1000);
+        timer.schedule(timerTask, 1000, 1000);
     }
 
     public void stopPolling(){

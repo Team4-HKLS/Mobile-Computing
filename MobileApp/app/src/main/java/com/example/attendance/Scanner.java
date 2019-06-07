@@ -35,6 +35,10 @@ public class Scanner {
     private String testUUID = "00000000-0000-1000-8000-00805F9B34FB";
     private String classId;
     private int count;
+    private SimpleDateFormat dateFormat;
+    private String date;
+    private String fileName;
+    private String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance";
 
     public Scanner(Context mContext, String classId){
         this.mContext = mContext;
@@ -42,10 +46,15 @@ public class Scanner {
         count = 0;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+
+        dateFormat = new SimpleDateFormat("yyyyMMdd");
+        date = dateFormat.format(new Date(System.currentTimeMillis()));
     }
 
     public void startScan(int duration){
-        count += 1;
+        fileName = classId + date + "_" + count++ + ".txt";
+        write("", fileName, filePath);
+
         List<ScanFilter> filters = new ArrayList<>();
         ScanFilter filter = new ScanFilter.Builder()
                 .setServiceUuid(new ParcelUuid(UUID.fromString(testUUID)))
@@ -64,7 +73,6 @@ public class Scanner {
         } else{
             bluetoothLeScanner.startScan(filters, scanSettings, scanCallback);
         }
-
 
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
@@ -91,10 +99,7 @@ public class Scanner {
             String time = simpleDateFormat.format(new Date(System.currentTimeMillis()));
             String text = time + "\t" + mac + "\t" + rssi  + "\t" + tx + "\n";
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-            String date = dateFormat.format(new Date(System.currentTimeMillis()));
-            String fileName = classId + date + "_" + count + ".txt";
-            write(text, fileName, Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance");
+            write(text, fileName, filePath);
             Log.d("test", text);
         }
 
