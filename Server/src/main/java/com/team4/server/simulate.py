@@ -6,8 +6,11 @@ import math
 
 row = 14 # 4, 6, 4
 col = 13
-student_num = 100
-eps = 2
+student_num = 50
+advertise_num = 10
+round_time = 10 #(s)
+
+eps = 20 # BLE range: 77m
 minPts = 3
 
 # dist between students in a desk : 0.7m
@@ -27,7 +30,7 @@ def place(num):
 
 def calculate_distance(place_list):
     coor = []
-    dist_map = [[0 for x in range(student_num)] for y in range(student_num)]
+    dist_map = [[9999 for x in range(student_num)] for y in range(student_num)]
 
     for i in range(len(place_list)):
         e_row = place_list[i] / (col)
@@ -48,7 +51,7 @@ def calculate_distance(place_list):
     for i in range(student_num):
         for j in range(student_num):
             if (i == j):
-                dist_map[i][j] = 99999
+                dist_map[i][j] = 9999
             elif (i > j):
                 dist_map[i][j] = dist_map[j][i]
             else:
@@ -56,7 +59,11 @@ def calculate_distance(place_list):
                 distance = math.sqrt(((p1[0]-p2[0])**2)+((p1[1]-p2[1])**2))
                 dist_map[i][j] = distance
 
-
+    lst = [x for x in range(student_num)]
+    lst = random.sample(lst, k=advertise_num)
+    for i in range(student_num):
+        if i not in lst:
+            dist_map[i] = map(lambda x:9999, dist_map[i])
     
     return dist_map
 
@@ -123,6 +130,8 @@ def main(argv):
         lst = map(lambda x:place_list[x], lst)
         print '--Noise nodes (#: %d):'%(len(lst))
         print lst
+
+    print 'time: ', round_time * advertise_num, 's\n'
 
 #    print 'dist 8 to 9:', dist_map[place_list.index(8)][place_list.index(9)]
 

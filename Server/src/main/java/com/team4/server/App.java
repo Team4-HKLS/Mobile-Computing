@@ -63,6 +63,7 @@ public class App {
 			state = State.ClusteringComplete;
 		}
 		else if (state == State.Clustering) {
+			state = State.ClusteringComplete;
 		}
 		else if (state == State.ClusteringComplete)
 			state = State.Final;
