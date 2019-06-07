@@ -9,6 +9,7 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -68,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mContext = this;
         deviceMac = getMacAddress("wlan0");
@@ -170,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
     public void executePlan(JSONArray plan, int duration, int order){
         PlanTask planTask = new PlanTask(plan, duration, order);
         planTask.start();
+        Toast.makeText(mContext, "Attendance check starts", Toast.LENGTH_SHORT).show();
     }
 
     class PlanTask extends Thread{
@@ -283,16 +287,16 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 jsonObject = new JSONObject(response.body().string());
                                 if (jsonObject.length() != 0){
+                                    stopPolling();
                                     String type = jsonObject.getString("type");
-
                                     if(type.equalsIgnoreCase("plan")){
-                                        stopPolling();
+                                        registerButton.setEnabled(false);
                                         int duration = jsonObject.getInt("duration");
                                         int order = jsonObject.getInt("deviceOrder");
                                         JSONArray plan = jsonObject.getJSONArray("plan");
                                         executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
-                                        stopPolling();
+                                        registerButton.setEnabled(true);
                                         Intent intent = new Intent(mContext, FingerprintActivity.class);
                                         intent.putExtra("deviceMac", deviceMac);
                                         intent.putExtra("name", name);
