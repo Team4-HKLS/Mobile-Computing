@@ -1,9 +1,11 @@
 package com.example.attendance;
 
 import android.Manifest;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Bundle;
@@ -54,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Scanner scanner;
     private Advertiser advertiser;
-
+    private FingerprintManager fingerprintManager;
+    private KeyguardManager keyguardManager;
     private Button registerButton;
     private EditText nameEditText;
     private Spinner classSpinner;
@@ -74,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
         deviceMac = getMacAddress("wlan0");
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 
         registerButton = findViewById(R.id.bt_register);
         nameEditText = findViewById(R.id.et_name);
@@ -295,7 +300,9 @@ public class MainActivity extends AppCompatActivity {
                                         executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
                                         registerButton.setEnabled(true);
-                                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1){
+                                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
+                                                && fingerprintManager.isHardwareDetected()
+                                                && keyguardManager.isKeyguardSecure()) {
                                             Intent intent = new Intent(mContext, FingerprintActivity.class);
                                             intent.putExtra("deviceMac", deviceMac);
                                             intent.putExtra("name", name);
