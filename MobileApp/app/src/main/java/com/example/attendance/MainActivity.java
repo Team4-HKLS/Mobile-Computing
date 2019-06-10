@@ -1,12 +1,16 @@
 package com.example.attendance;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Bundle;
 
+import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -297,10 +301,15 @@ public class MainActivity extends AppCompatActivity {
                                         executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
                                         registerButton.setEnabled(true);
-                                        Intent intent = new Intent(mContext, FingerprintActivity.class);
-                                        intent.putExtra("deviceMac", deviceMac);
-                                        intent.putExtra("name", name);
-                                        startActivity(intent);
+                                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1){
+                                            Intent intent = new Intent(mContext, FingerprintActivity.class);
+                                            intent.putExtra("deviceMac", deviceMac);
+                                            intent.putExtra("name", name);
+                                            startActivity(intent);
+                                        }
+                                        else{
+                                            confirmAttendance(deviceMac, name, true);
+                                        }
                                     }
                                 }
                             } catch (JSONException e) {
@@ -323,6 +332,28 @@ public class MainActivity extends AppCompatActivity {
         stopPolling();
         timer = new Timer();
         timer.schedule(timerTask, 1000, 1000);
+    }
+
+    public void confirmAttendance(String deviceMac, String name, boolean isAttended){
+        Call<ResponseBody> responseBodyCall = Client.getClient().confirmAttendance(deviceMac, name, isAttended);
+
+        responseBodyCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code() == 200) {
+                    Toast.makeText(mContext, "Confirmation succeeded", Toast.LENGTH_SHORT).show();
+                } else {
+//                    Toast.makeText(getApplicationContext(), "Confirmation failed", Toast.LENGTH_LONG).show();
+                    Log.d("server failure", response.code()+"");
+                    Toast.makeText(mContext, "Confirmation failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
     }
 
     public void stopPolling(){
