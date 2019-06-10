@@ -1,14 +1,18 @@
 package com.example.attendance;
 
 import android.Manifest;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,7 +27,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.NetworkInterface;
@@ -53,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Scanner scanner;
     private Advertiser advertiser;
-
+    private FingerprintManager fingerprintManager;
+    private KeyguardManager keyguardManager;
     private Button registerButton;
     private EditText nameEditText;
     private Spinner classSpinner;
@@ -67,10 +71,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         mContext = this;
         deviceMac = getMacAddress("wlan0");
         Log.d("test", deviceMac);
         classId = "Mobile Computing";
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 
         registerButton = findViewById(R.id.bt_register);
         nameEditText = findViewById(R.id.et_name);
@@ -85,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 name = nameEditText.getText().toString();
                 register(deviceMac, name, classId);
+
+                String[] list = getFileList("attendance");
+                for(int i = 0 ; i < list.length; i++){
+                    File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/attendance/" + list[i]);
+                    file.delete();
+                }
+
                 polling(deviceMac, name);
             }
         });
@@ -161,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public void executePlan(JSONArray plan, int duration, int order){
         PlanTask planTask = new PlanTask(plan, duration, order);
         planTask.start();
+        Toast.makeText(mContext, "Attendance check starts", Toast.LENGTH_SHORT).show();
     }
 
     class PlanTask extends Thread{
@@ -198,9 +214,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
             uploadFiles();
-            polling(deviceMac, name);
         }
     }
 
@@ -250,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
                 if(response.code() == 200) {
                     Log.d("test", "registered");
                     Toast.makeText(mContext, "Upload succeed", Toast.LENGTH_SHORT).show();
+                    polling(deviceMac, name);
                 } else{
                     Log.d("test", "Upload failed");
                 }
@@ -275,20 +290,27 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 jsonObject = new JSONObject(response.body().string());
                                 if (jsonObject.length() != 0){
+                                    stopPolling();
                                     String type = jsonObject.getString("type");
-
                                     if(type.equalsIgnoreCase("plan")){
-                                        stopPolling();
+                                        registerButton.setEnabled(false);
                                         int duration = jsonObject.getInt("duration");
                                         int order = jsonObject.getInt("deviceOrder");
                                         JSONArray plan = jsonObject.getJSONArray("plan");
                                         executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
-                                        stopPolling();
-                                        Intent intent = new Intent(mContext, FingerprintActivity.class);
-                                        intent.putExtra("deviceMac", deviceMac);
-                                        intent.putExtra("name", name);
-                                        startActivity(intent);
+                                        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
+                                                && fingerprintManager.isHardwareDetected()
+                                                && keyguardManager.isKeyguardSecure()) {
+                                            Intent intent = new Intent(mContext, FingerprintActivity.class);
+                                            intent.putExtra("deviceMac", deviceMac);
+                                            intent.putExtra("name", name);
+                                            startActivity(intent);
+                                        }
+                                        else{
+                                            confirmAttendance(deviceMac, name, true);
+                                        }
+                                        registerButton.setEnabled(true);
                                     }
                                 }
                             } catch (JSONException e) {
@@ -310,7 +332,29 @@ public class MainActivity extends AppCompatActivity {
         };
         stopPolling();
         timer = new Timer();
-        timer.schedule(timerTask, 0, 1000);
+        timer.schedule(timerTask, 1000, 1000);
+    }
+
+    public void confirmAttendance(String deviceMac, String name, boolean isAttended){
+        Call<ResponseBody> responseBodyCall = Client.getClient().confirmAttendance(deviceMac, name, isAttended);
+
+        responseBodyCall.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code() == 200) {
+                    Toast.makeText(mContext, "Confirmation succeeded", Toast.LENGTH_SHORT).show();
+                } else {
+//                    Toast.makeText(getApplicationContext(), "Confirmation failed", Toast.LENGTH_LONG).show();
+                    Log.d("server failure", response.code()+"");
+                    Toast.makeText(mContext, "Confirmation failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
     }
 
     public void stopPolling(){

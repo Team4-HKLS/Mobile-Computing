@@ -52,7 +52,6 @@ public class Advertiser {
             bluetoothLeAdvertiser.startAdvertising(advertiseSettings, advertiseData, advertiseCallback);
             Log.d("test", "advertising");
 
-
             Handler handler = new Handler(Looper.getMainLooper());
             handler.postDelayed(new Runnable() {
                 @Override
