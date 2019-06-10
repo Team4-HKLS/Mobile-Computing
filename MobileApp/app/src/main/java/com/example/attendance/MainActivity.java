@@ -299,7 +299,6 @@ public class MainActivity extends AppCompatActivity {
                                         JSONArray plan = jsonObject.getJSONArray("plan");
                                         executePlan(plan, duration, order);
                                     } else if(type.equalsIgnoreCase("authentication")){
-                                        registerButton.setEnabled(true);
                                         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
                                                 && fingerprintManager.isHardwareDetected()
                                                 && keyguardManager.isKeyguardSecure()) {
@@ -311,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
                                         else{
                                             confirmAttendance(deviceMac, name, true);
                                         }
+                                        registerButton.setEnabled(true);
                                     }
                                 }
                             } catch (JSONException e) {
