@@ -6,8 +6,8 @@ import math
 
 row = 14 # 4, 6, 4
 col = 13
-student_num = 182 # seats: 182
-advertise_num = 182
+student_num = int(182 * 1.0) # seats: 182
+advertise_num = int(student_num * 0.05)
 round_time = 10 #(s)
 
 eps = 10  
@@ -15,7 +15,8 @@ minPts = 3
 
 # dist between students in a desk : 0.6m
 # dist between students of side-by-side desk : 1.6m
-# dist between students of up-down desk : 1.0m 
+# dist between students of up-down desk : 1.0m
+# dist limit of BLE with no obstacles (measured) : 16.0m
 
 def place(num):
     list = []
@@ -76,67 +77,68 @@ def getNeighbors(st, dist_map):
     return list 
             
 def main(argv):
-    # Place students to the classroom
-    place_list = place(student_num)
+    if len(sys.argv) < 2:
+        print 'Give trial parameter'
+        return
+    success = 0
+    for trial in range(int(sys.argv[1])):
+        # Place students to the classroom
+        place_list = place(student_num)
 
-    # Calculate the distance between each pair of students
-    dist_map = calculate_distance(place_list)
+        # Calculate the distance between each pair of students
+        dist_map = calculate_distance(place_list)
 
-    # DBSCAN
-    C = 0
-    S = []
-    label = {}
-    for P in range(student_num):
-        if (P in label):
-            continue
-        neighbors = getNeighbors(P, dist_map)
-        if (len(neighbors) < minPts):
-            label[P] = -2 # -2: Noise point
-            continue
-
-        C = C + 1
-        label[P] = C
-        S = neighbors
-        S.append(P)
-
-        i = -1
-
-#        for i in range(len(S)):
-        while (i+1) < len(S):
-            i += 1
-    #        print 'len S: %d'%(len(S))
-            Q = S[i]
-   #         print 'Q: %d'%(Q)
-  #          print 'i: %d'%(i)
-            if (Q in label and label[Q] == -2):
-                label[Q] = C
-            if (Q in label):
-                #print 'i: %d'%(i)
+        # DBSCAN
+        C = 0
+        S = []
+        label = {}
+        for P in range(student_num):
+            if (P in label):
                 continue
-            label[Q] = C
-            N = getNeighbors(Q, dist_map)
- #           print 'N of %d: '%Q, N
-            if (len(N) >= minPts):
-                S.extend(filter(lambda x:x not in S, N))
- #               print 'S: ', S
+            neighbors = getNeighbors(P, dist_map)
+            if (len(neighbors) < minPts):
+                label[P] = -2 # -2: Noise point
+                continue
 
-    for i in range(1, C+1):
-        idx_list = filter(lambda x:label[x]==i, (j for j in range(student_num)))
-        print '--Cluster %d (#: %d):'%(i, len(idx_list))
-        print map(lambda x:place_list[x], idx_list)
+            C = C + 1
+            label[P] = C
+            S = neighbors
+            S.append(P)
 
-    if -2 in label.values():
-        lst = filter(lambda x:label[x]==-2, label.keys())
-        lst = map(lambda x:place_list[x], lst)
-        print '--Noise nodes (#: %d):'%(len(lst))
-        print lst
+            i = -1
 
-    print (round_time)
-    print (advertise_num)
+            while (i+1) < len(S):
+                i += 1
+                Q = S[i]
+                if (Q in label and label[Q] == -2):
+                    label[Q] = C
+                if (Q in label):
+                    continue
+                label[Q] = C
+                N = getNeighbors(Q, dist_map)
+                if (len(N) >= minPts):
+                    S.extend(filter(lambda x:x not in S, N))
 
+#        for i in range(1, C+1):
+#            idx_list = filter(lambda x:label[x]==i, (j for j in range(student_num)))
+#            print '--Cluster %d (#: %d):'%(i, len(idx_list))
+        #    print map(lambda x:place_list[x], idx_list)
+
+#        if -2 in label.values():
+#            lst = filter(lambda x:label[x]==-2, label.keys())
+#            lst = map(lambda x:place_list[x], lst)
+#            print '--Noise nodes (#: %d):'%(len(lst))
+            #print lst
+
+        if C == 1 and (-2 not in label.values()):
+            success += 1
+#        print 'time: %ds\n'%(round_time * advertise_num)
+
+    #    print 'dist 8 to 9:', dist_map[place_list.index(8)][place_list.index(9)]
+
+    print '# students: %d, # advertise: %d'%(student_num, advertise_num)
+    print '# success: %d'%(success)
     print 'time: %ds\n'%(round_time * advertise_num)
-
-#    print 'dist 8 to 9:', dist_map[place_list.index(8)][place_list.index(9)]
 
 if __name__ == '__main__':
     main(sys.argv)
