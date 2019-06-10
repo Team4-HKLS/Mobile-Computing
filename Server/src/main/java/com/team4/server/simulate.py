@@ -6,16 +6,16 @@ import math
 
 row = 14 # 4, 6, 4
 col = 13
-student_num = 50
-advertise_num = 10
+student_num = 182 # seats: 182
+advertise_num = 182
 round_time = 10 #(s)
 
-eps = 20 # BLE range: 77m
+eps = 10  
 minPts = 3
 
-# dist between students in a desk : 0.7m
-# dist between students of side-by-side desk : 2m
-# dist between students of up-down desk : 1.7m 
+# dist between students in a desk : 0.6m
+# dist between students of side-by-side desk : 1.6m
+# dist between students of up-down desk : 1.0m 
 
 def place(num):
     list = []
@@ -36,13 +36,13 @@ def calculate_distance(place_list):
         e_row = place_list[i] / (col)
         e_col = place_list[i] % (col)
         if (e_col > 8):
-            x = (0.7*3 + 2 + 0.7*4 + 2) + (e_col-9) * 0.7
+            x = (0.6*3 + 1.6 + 0.6*4 + 1.6) + (e_col-9) * 0.6
         elif (e_col > 3):
-            x = (0.7*3 + 2) + (e_col-4) * 0.7
+            x = (0.6*3 + 1.6) + (e_col-4) * 0.6
         else:
-            x = (e_col) * 0.7
+            x = (e_col) * 0.6
         
-        y = e_row * 1.7
+        y = e_row * 1.0
 
         coor.append((x, y))
 
@@ -131,7 +131,10 @@ def main(argv):
         print '--Noise nodes (#: %d):'%(len(lst))
         print lst
 
-    print 'time: ', round_time * advertise_num, 's\n'
+    print (round_time)
+    print (advertise_num)
+
+    print 'time: %ds\n'%(round_time * advertise_num)
 
 #    print 'dist 8 to 9:', dist_map[place_list.index(8)][place_list.index(9)]
 

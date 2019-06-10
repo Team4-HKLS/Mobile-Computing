@@ -25,7 +25,7 @@ public class PollingController {
             throw new NotExistingException("Not existing deviceID");
         }
 
-        if (App.state == State.GetPlan) {
+        if (App.state == State.GetPlan && App.List.get(deviceNum).getUploadResult() == false ) {
             System.out.println("GetPan Called :: " + deviceID);
             Map<String, Object> jsonObject = new LinkedHashMap<String, Object>();
             Map<String, Object> jsonSubObject = null;
@@ -48,8 +48,10 @@ public class PollingController {
             App.List.get(deviceNum).setGetPlan();
 
             return jsonObject;
+        } else if (App.state == State.GetPlan && App.List.get(deviceNum).getUploadResult() == true){
+            throw new NotPreparedException("Get Plan or Clustering result is not allowed in this time");
         } else {
-            if (App.List.get(deviceNum).getClusteringResult()) {
+            if (App.List.get(deviceNum).getClusteringResult() == true) {
                 Map<String, Object> jsonObject = new LinkedHashMap<String, Object>();
                 jsonObject.put("type", "authentication");
                 return jsonObject;

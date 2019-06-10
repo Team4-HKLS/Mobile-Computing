@@ -21,8 +21,8 @@ import java.util.List;
 
 public class ClusteringModule {
 	static final int Noise = -2, undefined = -1;
-	static final int referenceRSSI = -60; // 1m rssi
-	static final int threshold = 10;	// distance threshold
+	static final int referenceRSSI = -80; // 1m rssi. -95: 5.6m
+	static final int threshold = 5;	// distance threshold
 	static final int minPts = 3; // DBSCAN min points
 	private ArrayList<String> studentList;
 	private Map<String, Set<String>> allNeighbors;
